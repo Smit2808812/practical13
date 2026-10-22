@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NovaStock | Inventory Dashboard</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --bg: #0b1020;
+    --panel: #141b2d;
+    --line: #29334b;
+    --text: #edf2ff;
+    --muted: #929db8;
+    --purple: #9177ff;
+    --cyan: #49d7df;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Inter, Arial, sans-serif;
+}
+
+button, input, select { font: inherit; }
+
+.app {
+    display: grid;
+    grid-template-columns: 235px minmax(0, 1fr);
+    min-height: 100vh;
+}
+
+.sidebar {
+    background: #101729;
+    border-right: 1px solid var(--line);
+    padding: 28px 18px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 21px;
+    font-weight: 800;
+    margin-bottom: 45px;
+}
+
+.logo {
+    background: linear-gradient(135deg, #9b83ff, #4bd6dd);
+    color: #101729;
+    border-radius: 12px;
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+}
+
+.side-label {
+    color: #6f7c9b;
+    font-size: 11px;
+    letter-spacing: 2px;
+    margin: 24px 10px 12px;
+}
+
+.nav-item {
+    padding: 13px 12px;
+    border-radius: 10px;
+    color: var(--muted);
+    margin: 5px 0;
+    font-size: 13px;
+}
+
+.nav-item.active {
+    background: #252442;
+    color: #c5b9ff;
+    border: 1px solid #39315f;
+}
+
+.sidebar-note {
+    margin-top: 60px;
+    padding: 15px;
+    background: #19243a;
+    border-radius: 12px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+main { min-width: 0; }
+
+.topbar {
+    padding: 23px 32px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.topbar h1 {
+    margin: 0;
+    font-size: 23px;
+}
+
+.subtitle {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 7px;
+}
+
+select, input {
+    background: #0f1728;
+    color: var(--text);
+    border: 1px solid #303b55;
+    border-radius: 9px;
+    padding: 12px;
+    outline: none;
+    width: 100%;
+}
+
+select:focus, input:focus { border-color: var(--purple); }
+
+.role-box { width: 145px; }
+
+.content { padding: 30px; }
+
+.welcome {
+    padding: 27px;
+    border-radius: 17px;
+    background: linear-gradient(115deg, #27224d, #182943 75%, #153b49);
+    border: 1px solid #39365e;
+    margin-bottom: 24px;
+}
+
+.welcome h2 { margin: 0 0 10px; font-size: 23px; }
+
+.welcome p {
+    color: #bac5e0;
+    font-size: 13px;
+    line-height: 1.7;
+    margin-bottom: 0;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.stat, .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 15px;
+    padding: 21px;
+}
+
+.stat-label { color: var(--muted); font-size: 12px; }
+
+.stat-number {
+    font-size: 27px;
+    font-weight: 800;
+    margin: 13px 0 6px;
+}
+
+.stat-foot { color: #6fd9c1; font-size: 11px; }
+
+.workspace {
+    display: grid;
+    grid-template-columns: minmax(250px, .8fr) minmax(0, 1.6fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.panel h3 { margin: 0 0 7px; font-size: 16px; }
+
+.panel-desc {
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 23px;
+}
+
+.field { margin-bottom: 17px; }
+
+.field label {
+    display: block;
+    color: #bbc5dd;
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+.actions { display: flex; gap: 9px; flex-wrap: wrap; }
+
+.btn {
+    padding: 11px 14px;
+    border: 0;
+    border-radius: 9px;
+    background: var(--purple);
+    color: white;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.btn:hover { filter: brightness(1.12); }
+
+.btn.secondary { background: #2a3550; }
+.btn.danger { background: #a63e57; }
+.btn.small { padding: 8px 10px; margin: 2px; }
+
+#message {
+    display: none;
+    margin-bottom: 18px;
+    padding: 13px;
+    border-radius: 9px;
+    font-size: 13px;
+}
+
+#message.success {
+    display: block;
+    background: #14372f;
+    color: #8af0cf;
+}
+
+#message.error {
+    display: block;
+    background: #451f31;
+    color: #ffb5c7;
+}
+
+.table-tools {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 20px 0 12px;
+}
+
+.search { max-width: 240px; }
+
+.table-wrap { overflow-x: auto; }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+th {
+    text-align: left;
+    color: #8997b5;
+    background: #101729;
+    font-weight: 600;
+}
+
+th, td {
+    padding: 15px 12px;
+    border-bottom: 1px solid var(--line);
+}
+
+td { color: #dce4f8; }
+
+.pill {
+    display: inline-block;
+    border-radius: 20px;
+    background: #25354a;
+    color: #75dfd4;
+    padding: 5px 9px;
+    font-size: 10px;
+}
+
+.empty {
+    text-align: center;
+    color: var(--muted);
+    padding: 25px;
+}
+
+.footer {
+    padding: 22px 30px;
+    color: #74809c;
+    font-size: 11px;
+}
+
+@media(max-width: 1050px) {
+    .workspace { grid-template-columns: 1fr; }
+}
+
+@media(max-width: 720px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { padding: 15px; }
+    .brand { margin-bottom: 15px; }
+    .side-label, .sidebar-note { display: none; }
+    .sidebar nav { display: flex; flex-wrap: wrap; gap: 5px; }
+    .nav-item { padding: 10px; }
+    .content { padding: 16px; }
+    .topbar { padding: 18px; }
+    .stats { grid-template-columns: 1fr; }
+    .welcome h2 { font-size: 19px; }
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<aside class="sidebar">
+    <div class="brand">
+        <div class="logo">N</div>
+        <span>NovaStock</span>
+    </div>
+
+    <div class="side-label">WORKSPACE</div>
+    <nav>
+        <div class="nav-item active">◈ &nbsp; Overview</div>
+        <div class="nav-item">▤ &nbsp; Inventory</div>
+        <div class="nav-item">⌘ &nbsp; Access Control</div>
+    </nav>
+
+    <div class="side-label">SYSTEM</div>
+    <div class="nav-item">⚙ &nbsp; Settings</div>
+
+    <div class="sidebar-note">
+        <strong style="color:#e4e9ff">NovaStock Workspace</strong><br>
+        Inventory made simple.<br>
+        Secure API · Live records
+    </div>
+</aside>
+
+<main>
+    <header class="topbar">
+        <div>
+            <h1>Inventory Overview</h1>
+            <div class="subtitle">Your products, organized in one place.</div>
+        </div>
+
+        <div class="role-box">
+            <label for="role" class="subtitle">ACTIVE ROLE</label>
+            <select id="role" onchange="changeRole()">
+                <option value="user">User</option>
+                <option value="editor">Editor</option>
+                <option value="admin">Admin</option>
+            </select>
+        </div>
+    </header>
+
+    <section class="content">
+        <div class="welcome">
+            <h2>Manage smarter. Work faster.</h2>
+            <p>Welcome to your inventory workspace. Manage product records with
+            secure PHP APIs and asynchronous Fetch requests.</p>
+        </div>
+
+        <div id="message" role="status" aria-live="polite"></div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-label">TOTAL PRODUCTS</div>
+                <div class="stat-number" id="totalCount">—</div>
+                <div class="stat-foot">Live database records</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">INVENTORY VALUE</div>
+                <div class="stat-number" id="totalValue">₹0.00</div>
+                <div class="stat-foot">Combined product value</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">CURRENT ACCESS</div>
+                <div class="stat-number" id="roleLabel" style="font-size:22px">User</div>
+                <div class="stat-foot">Role-based permissions</div>
+            </div>
+        </div>
+
+        <div class="workspace">
+            <section class="panel" id="formPanel">
+                <h3 id="formHeading">Add a product</h3>
+                <div class="panel-desc">Enter the details below to create a record.</div>
+
+                <form id="itemForm" onsubmit="saveItem(event)">
+                    <input type="hidden" id="itemId">
+
+                    <div class="field">
+                        <label for="itemName">PRODUCT NAME</label>
+                        <input id="itemName" maxlength="100"
+                               placeholder="e.g. Wireless Headphones" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="itemCategory">CATEGORY</label>
+                        <input id="itemCategory" maxlength="50"
+                               placeholder="e.g. Electronics" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="itemPrice">PRICE (₹)</label>
+                        <input id="itemPrice" type="number" min="0"
+                               max="99999999.99" step="0.01"
+                               placeholder="e.g. 2499" required>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn" id="saveButton" type="submit">＋ Add Product</button>
+                        <button class="btn secondary" id="cancelButton"
+                                type="button" onclick="resetForm()" hidden>Cancel</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="panel">
+                <h3>Product directory</h3>
+                <div class="panel-desc">Browse and manage your inventory records.</div>
+
+                <div class="table-tools">
+                    <input class="search" id="searchBox"
+                           placeholder="⌕ Search products..." oninput="renderItems()">
+                    <button class="btn secondary" onclick="loadItems()">↻ Refresh</button>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>PRODUCT</th>
+                                <th>CATEGORY</th>
+                                <th>PRICE</th>
+                                <th>ACTIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemRows">
+                            <tr><td colspan="5" class="empty">Loading records...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </section>
+
+    <footer class="footer">NovaStock · PHP + MySQL + JSON API + Fetch API</footer>
+</main>
+</div>
+
+<script>
+const API = "api.php";
+let currentRole = "user";
+let items = [];
+
+async function requestAPI(action, options = {}) {
+    const response = await fetch(
+        API + "?action=" + encodeURIComponent(action),
+        { credentials: "same-origin", ...options }
+    );
+
+    let result;
+    try {
+        result = await response.json();
+    } catch {
+        throw new Error("Invalid server response. Check your PHP files.");
+    }
+
+    if (!response.ok || result.status !== "success") {
+        throw new Error(result.message || "Request failed.");
+    }
+    return result;
+}
+
+function postJSON(data) {
+    return {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    };
+}
+
+function showMessage(message, type = "success") {
+    const box = document.getElementById("message");
+    box.textContent = message;
+    box.className = type;
+}
+
+function clearMessage() {
+    const box = document.getElementById("message");
+    box.textContent = "";
+    box.className = "";
+}
+
+async function initialize() {
+    try {
+        const result = await requestAPI("get_role");
+        currentRole = result.data.role;
+        document.getElementById("role").value = currentRole;
+        await loadMenu();
+        await loadItems();
+    } catch (error) {
+        showMessage(error.message, "error");
+    }
+}
+
+async function loadMenu() {
+    const result = await requestAPI("get_menu");
+    const nav = document.querySelector(".sidebar nav");
+    nav.replaceChildren();
+
+    result.data.forEach((item, index) => {
+        const link = document.createElement("a");
+        link.className = "nav-item" + (index === 0 ? " active" : "");
+        link.textContent = item.title;
+        link.href = item.link;
+        link.style.textDecoration = "none";
+        nav.appendChild(link);
+    });
+}
+
+async function changeRole() {
+    const selected = document.getElementById("role").value;
+    clearMessage();
+
+    try {
+        const result = await requestAPI(
+            "set_demo_role", postJSON({ role: selected })
+        );
+        currentRole = result.data.role;
+        resetForm();
+        await loadMenu();
+        await loadItems();
+        showMessage("Access role changed to " + currentRole + ".");
+    } catch (error) {
+        showMessage(error.message, "error");
+    }
+}
+
+async function loadItems() {
+    const tbody = document.getElementById("itemRows");
+    tbody.innerHTML = '<tr><td colspan="5" class="empty">Loading records...</td></tr>';
+
+    try {
+        const result = await requestAPI("read");
+        items = result.data;
+        renderItems();
+        updateStats();
+    } catch (error) {
+        tbody.replaceChildren();
+        const row = tbody.insertRow();
+        const cell = row.insertCell();
+        cell.colSpan = 5;
+        cell.className = "empty";
+        cell.textContent = error.message;
+        showMessage(error.message, "error");
+    }
+}
+
+function renderItems() {
+    const tbody = document.getElementById("itemRows");
+    const query = document.getElementById("searchBox").value.trim().toLowerCase();
+
+    const filtered = items.filter(item =>
+        String(item.name).toLowerCase().includes(query) ||
+        String(item.category).toLowerCase().includes(query) ||
+        String(item.id).includes(query)
+    );
+
+    tbody.replaceChildren();
+    document.getElementById("formPanel").hidden = currentRole === "user";
+
+    if (!filtered.length) {
+        const row = tbody.insertRow();
+        const cell = row.insertCell();
+        cell.colSpan = 5;
+        cell.className = "empty";
+        cell.textContent = query ? "No matching products found." : "No products yet. Add your first product.";
+    }
+
+    filtered.forEach(item => {
+        const row = tbody.insertRow();
+
+        [item.id, item.name, item.category].forEach(value => {
+            const cell = row.insertCell();
+            cell.textContent = value;
+        });
+
+        const priceCell = row.insertCell();
+        priceCell.textContent = "₹" + Number(item.price).toLocaleString("en-IN", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+        const actions = row.insertCell();
+
+        if (currentRole === "editor" || currentRole === "admin") {
+            const edit = document.createElement("button");
+            edit.className = "btn small secondary";
+            edit.textContent = "Edit";
+            edit.onclick = () => editItem(item);
+            actions.appendChild(edit);
+        }
+
+        if (currentRole === "admin") {
+            const del = document.createElement("button");
+            del.className = "btn small danger";
+            del.textContent = "Delete";
+            del.onclick = () => deleteItem(item.id);
+            actions.appendChild(del);
+        }
+
+        if (!actions.hasChildNodes()) {
+            const badge = document.createElement("span");
+            badge.className = "pill";
+            badge.textContent = "View only";
+            actions.appendChild(badge);
+        }
+    });
+
+    updateStats();
+}
+
+function updateStats() {
+    document.getElementById("totalCount").textContent = items.length;
+    const total = items.reduce((sum, item) => sum + Number(item.price), 0);
+
+    document.getElementById("totalValue").textContent =
+        "₹" + total.toLocaleString("en-IN", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+    document.getElementById("roleLabel").textContent =
+        currentRole.charAt(0).toUpperCase() + currentRole.slice(1);
+}
+
+async function saveItem(event) {
+    event.preventDefault();
+    clearMessage();
+
+    if (currentRole !== "editor" && currentRole !== "admin") {
+        showMessage("You cannot modify products as a User.", "error");
+        return;
+    }
+
+    const id = document.getElementById("itemId").value;
+    const name = document.getElementById("itemName").value.trim();
+    const category = document.getElementById("itemCategory").value.trim();
+    const priceText = document.getElementById("itemPrice").value;
+    const price = Number(priceText);
+
+    if (!name || name.length > 100 || !category || category.length > 50 ||
+        priceText === "" || !Number.isFinite(price) || price < 0 ||
+        price > 99999999.99) {
+        showMessage("Please enter valid product details.", "error");
+        return;
+    }
+
+    const data = { name, category, price };
+    const action = id ? "update" : "create";
+    if (id) data.id = Number(id);
+
+    try {
+        const result = await requestAPI(action, postJSON(data));
+        resetForm();
+        await loadItems();
+        showMessage(result.message);
+    } catch (error) {
+        showMessage(error.message, "error");
+    }
+}
+
+function editItem(item) {
+    document.getElementById("itemId").value = item.id;
+    document.getElementById("itemName").value = item.name;
+    document.getElementById("itemCategory").value = item.category;
+    document.getElementById("itemPrice").value = item.price;
+
+    document.getElementById("formHeading").textContent = "Edit product";
+    document.getElementById("saveButton").textContent = "Save Changes";
+    document.getElementById("cancelButton").hidden = false;
+    document.getElementById("itemName").focus();
+    clearMessage();
+}
+
+async function deleteItem(id) {
+    if (currentRole !== "admin") {
+        showMessage("Only Admin can delete products.", "error");
+        return;
+    }
+
+    if (!confirm("Are you sure you want to delete product #" + id + "?")) {
+        return;
+    }
+
+    try {
+        const result = await requestAPI("delete", postJSON({ id: Number(id) }));
+        await loadItems();
+        showMessage(result.message);
+    } catch (error) {
+        showMessage(error.message, "error");
+    }
+}
+
+function resetForm() {
+    document.getElementById("itemForm").reset();
+    document.getElementById("itemId").value = "";
+    document.getElementById("formHeading").textContent = "Add a product";
+    document.getElementById("saveButton").textContent = "＋ Add Product";
+    document.getElementById("cancelButton").hidden = true;
+}
+
+document.addEventListener("DOMContentLoaded", initialize);
+</script>
+</body>
+</html>
